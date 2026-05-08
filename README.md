@@ -122,4 +122,4 @@ Defines the pipeline with:
 Cloud & DevOps / SRE Engineer  
 
 ## 📬 **Contact**: 
-[LinkedIn](https://www.linkedin.com/in/nandkishor-khandare-616492215/) | [Email](nandkishor.k6e@gmail.com)
+[LinkedIn](https://www.linkedin.com/in/nandkishor-khandare-616492215/) | [Email](nandkishor.k6e@gmail.com) | [Twitter (X)](https://x.com/devops_nk)
