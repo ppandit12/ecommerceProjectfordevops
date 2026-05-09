@@ -1,4 +1,4 @@
-# 🚀 Deploying Application on EKS with Ingress & Route53 (GoDaddy Domain Integration)
+#  Deploying Application on EKS with Ingress & Route53 (GoDaddy Domain Integration)
 
 This guide explains how to connect an EC2 instance to your EKS cluster, deploy services, and configure a custom domain using Route53 with a GoDaddy domain.
 
