@@ -2,6 +2,9 @@
 
 name: product-catalog-ci
 
+permissions:
+  contents: write
+
 on: 
     push:
         branches:
