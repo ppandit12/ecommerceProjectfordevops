@@ -91,3 +91,16 @@ jobs:
         run: |
           aws eks update-kubeconfig --region us-east-1 --name otel-eks-cluster
           kubectl apply -f ../kubernetes/complete-deploy.yaml
+          
+          echo "Waiting for LoadBalancer DNS name..."
+          for i in {1..30}; do
+            LB_HOST=$(kubectl get svc opentelemetry-demo-frontendproxy -o jsonpath='{.status.loadBalancer.ingress[0].hostname}' 2>/dev/null)
+            if [ -n "$LB_HOST" ]; then
+              echo "=================================================="
+              echo "🚀 YOUR LOAD BALANCER DNS IS:"
+              echo "$LB_HOST"
+              echo "=================================================="
+              break
+            fi
+            sleep 10
+          done
