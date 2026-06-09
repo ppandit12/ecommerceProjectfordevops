@@ -181,7 +181,7 @@ kind: Service
 metadata:
   name: opentelemetry-demo-frontendproxy
   annotations:
-    service.beta.kubernetes.io/aws-load-balancer-ssl-cert: "arn:aws:acm:us-east-1:YOUR_ACCOUNT_ID:certificate/YOUR_CERTIFICATE_UUID"
+    service.beta.kubernetes.io/aws-load-balancer-ssl-cert: "arn:aws:acm:us-east-1:626635412838:certificate/26b7d5fb-88da-455f-8d20-026f1b8a1f01"
     service.beta.kubernetes.io/aws-load-balancer-ssl-ports: "443"
     service.beta.kubernetes.io/aws-load-balancer-backend-protocol: "http"
   labels:
