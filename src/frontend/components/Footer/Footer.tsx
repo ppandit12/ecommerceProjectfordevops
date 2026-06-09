@@ -7,8 +7,6 @@ import SessionGateway from '../../gateways/Session.gateway';
 import { CypressFields } from '../../utils/Cypress';
 import PlatformFlag from '../PlatformFlag';
 
-const currentYear = new Date().getFullYear();
-
 const { userId } = SessionGateway.getSession();
 
 const Footer = () => {
