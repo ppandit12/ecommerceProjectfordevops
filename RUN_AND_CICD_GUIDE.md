@@ -230,3 +230,35 @@ To set up ArgoCD on your Kubernetes cluster to listen to this repository and pul
    * Click **Create**.
 
 Now, every code push to `main` will automatically trigger a build, update the manifest, and prompt ArgoCD to update the live environment within seconds!
+
+---
+
+## 🌐 7. Routing to your Custom Subdomain (frontend-live.kuamar.shop)
+
+We have updated the Kubernetes Ingress manifest at `kubernetes/frontendproxy/ingress.yaml` to route traffic specifically for the subdomain `frontend-live.kuamar.shop`.
+
+Here is how to map this domain on AWS Route 53:
+
+### Step 1: Deploy Ingress on EKS
+1. Ensure the **AWS Load Balancer Controller** is installed on your EKS cluster.
+2. Deploy the frontend proxy configuration via ArgoCD or `kubectl`:
+   ```bash
+   kubectl apply -f kubernetes/frontendproxy/ingress.yaml
+   ```
+3. Retrieve the DNS name of the newly created Application Load Balancer (ALB):
+   ```bash
+   kubectl get ingress frontend-proxy
+   ```
+   *Note: Under the `ADDRESS` column, you will see a value like `k8s-default-frontend-12345.us-east-1.elb.amazonaws.com`. Copy this address.*
+
+### Step 2: Configure Route 53 DNS Records
+1. Open the AWS Console and navigate to **Route 53**.
+2. Click **Hosted Zones** and select your domain name (`kuamar.shop`).
+3. Click **Create record**.
+4. Fill in the following details:
+   - **Record name:** `frontend-live` (to make it `frontend-live.kuamar.shop`)
+   - **Record type:** `CNAME` (or `A` record using the "Alias to Application and Classic Load Balancer" option)
+   - **Value:** Paste the ALB DNS Address you copied in Step 1 (e.g., `k8s-default-frontend-12345.us-east-1.elb.amazonaws.com`).
+5. Click **Create records**.
+
+Once the DNS propagates (usually within 1-2 minutes), you can access your live microservices store at [http://frontend-live.kuamar.shop](http://frontend-live.kuamar.shop)!
