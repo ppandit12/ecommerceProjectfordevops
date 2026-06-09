@@ -85,3 +85,9 @@ jobs:
           elif [ "${{ github.event.inputs.terraform_action }}" = "destroy" ]; then
             terraform destroy -auto-approve
           fi
+
+      - name: Deploy Kubernetes Applications
+        if: github.event.inputs.terraform_action == 'apply'
+        run: |
+          aws eks update-kubeconfig --region us-east-1 --name otel-eks-cluster
+          kubectl apply -f ../kubernetes/complete-deploy.yaml

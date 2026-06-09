@@ -235,30 +235,25 @@ Now, every code push to `main` will automatically trigger a build, update the ma
 
 ## 🌐 7. Routing to your Custom Subdomain (frontend-live.kuamar.shop)
 
-We have updated the Kubernetes Ingress manifest at `kubernetes/frontendproxy/ingress.yaml` to route traffic specifically for the subdomain `frontend-live.kuamar.shop`.
+We have configured the frontend proxy service (`opentelemetry-demo-frontendproxy`) to be of type `LoadBalancer` which automatically spins up an AWS Classic Load Balancer.
 
-Here is how to map this domain on AWS Route 53:
+Here is how to map your subdomain to the LoadBalancer:
 
-### Step 1: Deploy Ingress on EKS
-1. Ensure the **AWS Load Balancer Controller** is installed on your EKS cluster.
-2. Deploy the frontend proxy configuration via ArgoCD or `kubectl`:
-   ```bash
-   kubectl apply -f kubernetes/frontendproxy/ingress.yaml
-   ```
-3. Retrieve the DNS name of the newly created Application Load Balancer (ALB):
-   ```bash
-   kubectl get ingress frontend-proxy
-   ```
-   *Note: Under the `ADDRESS` column, you will see a value like `k8s-default-frontend-12345.us-east-1.elb.amazonaws.com`. Copy this address.*
+### Step 1: Retrieve the LoadBalancer DNS Name
+Once the cluster and applications are successfully deployed via the automated GitHub Actions pipeline, retrieve the DNS name of the LoadBalancer:
+```bash
+kubectl get svc opentelemetry-demo-frontendproxy
+```
+*Note: Under the `EXTERNAL-IP` column, you will see a value ending in `.elb.amazonaws.com` (e.g., `a1b2c3d4e5f6g7h8i9j0-1234567890.us-east-1.elb.amazonaws.com`). Copy this entire DNS name.*
 
-### Step 2: Configure Route 53 DNS Records
-1. Open the AWS Console and navigate to **Route 53**.
-2. Click **Hosted Zones** and select your domain name (`kuamar.shop`).
-3. Click **Create record**.
-4. Fill in the following details:
-   - **Record name:** `frontend-live` (to make it `frontend-live.kuamar.shop`)
-   - **Record type:** `CNAME` (or `A` record using the "Alias to Application and Classic Load Balancer" option)
-   - **Value:** Paste the ALB DNS Address you copied in Step 1 (e.g., `k8s-default-frontend-12345.us-east-1.elb.amazonaws.com`).
-5. Click **Create records**.
+### Step 2: Configure your DNS Provider (e.g., GoDaddy / AWS Route 53)
+To point your custom subdomain (`frontend-live.kuamar.shop`) to the EKS application:
+1. Log in to your domain registrar (e.g., GoDaddy) or DNS management console (e.g., AWS Route 53 Hosted Zone).
+2. Create a new DNS record:
+   - **Type:** `CNAME`
+   - **Name / Host:** `frontend-live`
+   - **Value / Points to:** Paste the LoadBalancer DNS Address you copied in Step 1 (e.g., `a1b2c3d4e5f6g7h8i9j0-1234567890.us-east-1.elb.amazonaws.com`).
+   - **TTL:** `1 hour` (or default)
+3. Save the record.
 
-Once the DNS propagates (usually within 1-2 minutes), you can access your live microservices store at [http://frontend-live.kuamar.shop](http://frontend-live.kuamar.shop)!
+Once the DNS propagates (usually within a few minutes), you can access your live microservices store at [http://frontend-live.kuamar.shop](http://frontend-live.kuamar.shop)!
