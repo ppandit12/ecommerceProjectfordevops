@@ -3,7 +3,10 @@
 This guide walks you through:
 1. **Running the application locally** using Docker Compose.
 2. **How the automated CI/CD pipeline works** when you push code.
-3. **Step-by-step instructions to configure secrets** and trigger deployments.
+3. **Automatically installing dependencies on your EC2 jumpbox** via Ansible.
+4. **Provisioning AWS EKS Infrastructure** using Terraform.
+5. **Configuring the pipeline secrets** on GitHub.
+6. **Deploying with ArgoCD** to EKS in GitOps fashion.
 
 ---
 
@@ -66,7 +69,114 @@ graph TD
 
 ---
 
-## ⚙️ 3. Configuring the Pipeline on GitHub
+## 🛠️ 3. Automating EC2 Setup via Ansible
+
+We have created an Ansible playbook under the `ansible` directory to automatically install **Docker**, **kubectl**, **Terraform**, and the **AWS CLI v2** on your EC2 jumpbox.
+
+### Prerequisites
+- Install **Ansible** on your local control machine:
+  ```bash
+  pip install ansible
+  ```
+- Obtain your EC2 jumpbox's **Public IP address** and your AWS SSH **Private Key (`.pem` file)**.
+
+### Deployment Steps
+1. Navigate to the `ansible` directory:
+   ```bash
+   cd ansible
+   ```
+2. Open [inventory.ini](file:///c:/Users/user/OneDrive/Desktop/devopsProject/ultimate-devops-project-demo/ansible/inventory.ini) and replace `YOUR_EC2_PUBLIC_IP` and the private key path with your actual details:
+   ```ini
+   [jumpbox]
+   54.210.32.110 ansible_user=ubuntu ansible_ssh_private_key_file=/Users/user/.ssh/my-aws-key.pem
+   ```
+3. Run the playbook:
+   ```bash
+   ansible-playbook playbook.yml
+   ```
+   *(Ansible will connect to your EC2 instance and automatically install all tools, repositories, GPG keys, and configure permissions. This takes about 2-3 minutes).*
+
+---
+
+## 🏗️ 4. Provisioning EKS Infrastructure via Terraform
+
+We have added Terraform configurations under the `EKS-Terraform` directory to automate setting up the AWS network and EKS cluster. You can choose to run this configuration locally or run it completely automatically using GitHub Actions.
+
+### 🔒 Initial Setup: Remote State (Required for GitHub Actions Automation)
+Because GitHub Actions runs on ephemeral (temporary) runners, it will lose local state files. To prevent Terraform from forgetting your cluster details:
+1. Go to your AWS console and create an **S3 Bucket** (e.g., `my-unique-state-bucket-name`) in `us-east-1` to store the state.
+2. Create a **DynamoDB Table** (e.g., `my-state-lock-table`) in `us-east-1` with a partition key named `LockID` (type `String`) to handle state locking.
+3. Open [backend.tf](file:///c:/Users/user/OneDrive/Desktop/devopsProject/ultimate-devops-project-demo/EKS-Terraform/backend.tf) and replace the placeholders with your actual S3 bucket and DynamoDB table names:
+   ```hcl
+   bucket         = "my-unique-state-bucket-name"
+   dynamodb_table = "my-state-lock-table"
+   ```
+
+---
+
+### Option A: Automated Provisioning via GitHub Actions (Recommended)
+
+This allows you to spin up or tear down your EKS cluster with a single click in GitHub without running commands locally.
+
+#### Step 1: Add AWS Secrets to GitHub Repository
+1. Go to your repository on GitHub ➔ **Settings** ➔ **Secrets and variables** ➔ **Actions**.
+2. Click **New repository secret** and add:
+   * **`AWS_ACCESS_KEY_ID`**: Your AWS IAM Access Key ID.
+   * **`AWS_SECRET_ACCESS_KEY`**: Your AWS IAM Secret Access Key.
+
+#### Step 2: Trigger EKS Deployment from GitHub Actions UI
+1. Go to your repository on GitHub and click the **Actions** tab.
+2. In the left sidebar under "Workflows", select **AWS EKS Infrastructure Provisioning**.
+3. Click the **Run workflow** dropdown on the right side.
+4. Select the action:
+   * Choose **`apply`** to provision the EKS cluster (takes 10-15 minutes).
+   * Choose **`destroy`** to completely delete the EKS cluster and VPC (to avoid AWS bills when you're done).
+5. Click the green **Run workflow** button.
+
+---
+
+### Option B: Manual Provisioning via Local CLI
+
+If you prefer to run the Terraform commands manually from your computer or EC2 jumpbox:
+
+#### Prerequisites
+- Install **Terraform CLI** locally.
+- Run `aws configure` to set your local AWS Access Key and Secret Key.
+
+#### Deployment Steps
+1. Navigate to the Terraform directory:
+   ```bash
+   cd EKS-Terraform
+   ```
+2. Initialize Terraform (this will configure the backend and download provider plugins):
+   ```bash
+   terraform init
+   ```
+3. Generate and review the execution plan:
+   ```bash
+   terraform plan
+   ```
+4. Apply the configuration to provision the EKS cluster:
+   ```bash
+   terraform apply
+   ```
+   *(Enter `yes` when prompted. Wait 10-15 minutes for completion).*
+
+---
+
+### 🌐 Connecting `kubectl` to the Cluster
+Once the EKS cluster is provisioned (either via GitHub Actions or locally), run the following command to download cluster credentials and configure `kubectl`:
+```bash
+aws eks update-kubeconfig --region us-east-1 --name otel-eks-cluster
+```
+Verify cluster access:
+```bash
+kubectl get nodes
+```
+
+---
+
+## ⚙️ 5. Configuring the Pipeline on GitHub
 
 To make the CI/CD pipeline work automatically on push:
 
@@ -89,7 +199,7 @@ Since the GitHub Actions workflow commits the updated deployment manifest back t
 
 ---
 
-## 🛠️ 4. Deploying with ArgoCD on EKS
+## 🛠️ 6. Deploying with ArgoCD on EKS
 
 To set up ArgoCD on your Kubernetes cluster to listen to this repository and pull live updates:
 
