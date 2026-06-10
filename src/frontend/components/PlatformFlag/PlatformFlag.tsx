@@ -1,13 +1,18 @@
-// Copyright The OpenTelemetry Authors
-// SPDX-License-Identifier: Apache-2.0
-
+import { useEffect, useState } from 'react';
 import * as S from './PlatformFlag.styled';
 
-const { NEXT_PUBLIC_PLATFORM = 'local' } = typeof window !== 'undefined' ? window.ENV : {};
-
-const platform = NEXT_PUBLIC_PLATFORM && NEXT_PUBLIC_PLATFORM !== 'undefined' ? NEXT_PUBLIC_PLATFORM : 'pawan';
-
 const PlatformFlag = () => {
+  const [platform, setPlatform] = useState('pawan');
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.ENV) {
+      const val = window.ENV.NEXT_PUBLIC_PLATFORM;
+      if (val && val !== 'undefined') {
+        setPlatform(val);
+      }
+    }
+  }, []);
+
   return (
     <S.Block>{platform}</S.Block>
   );
