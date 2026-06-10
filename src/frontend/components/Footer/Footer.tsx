@@ -18,12 +18,7 @@ const Footer = () => {
 
   return (
     <S.Footer>
-      <div>
-        <p>This website is hosted for demo purpose only. It is not an actual shop.</p>
-        <p>
-          <span data-cy={CypressFields.SessionId}>session-id: {sessionId}</span>
-        </p>
-      </div>
+
       <p>
         <a href="https://www.kuamar.shop/">kumar shop</a>
       </p>
