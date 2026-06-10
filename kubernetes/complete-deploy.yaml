@@ -1091,6 +1091,8 @@ spec:
               value: http://$(OTEL_COLLECTOR_NAME):4317
             - name: WEB_OTEL_SERVICE_NAME
               value: frontend-web
+            - name: ENV_PLATFORM
+              value: pawan
             - name: PUBLIC_OTEL_EXPORTER_OTLP_TRACES_ENDPOINT
               value: http://localhost:8080/otlp-http/v1/traces
             - name: OTEL_RESOURCE_ATTRIBUTES
