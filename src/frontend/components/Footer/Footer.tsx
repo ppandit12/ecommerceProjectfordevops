@@ -8,7 +8,7 @@ const Footer = () => {
   return (
     <S.Footer>
       <p>
-        <a href="https://www.kuamar.shop/">kumar shop</a>
+        <a href="https://www.kuamar.shop/">kuamarShop</a>
       </p>
       <PlatformFlag />
     </S.Footer>
