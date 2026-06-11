@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import * as S from './PlatformFlag.styled';
 
 const PlatformFlag = () => {
-  const [platform, setPlatform] = useState('pawan');
+  const [platform, setPlatform] = useState('kuamarShop');
 
   useEffect(() => {
     if (typeof window !== 'undefined' && window.ENV) {
