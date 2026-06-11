@@ -30,10 +30,15 @@ const FrontendTracer = () => {
 
   provider.addSpanProcessor(new SessionIdProcessor());
 
+  let tracesEndpoint = NEXT_PUBLIC_OTEL_EXPORTER_OTLP_TRACES_ENDPOINT || 'http://localhost:4318/v1/traces';
+  if (tracesEndpoint.startsWith('/')) {
+    tracesEndpoint = `${window.location.origin}${tracesEndpoint}`;
+  }
+
   provider.addSpanProcessor(
     new BatchSpanProcessor(
       new OTLPTraceExporter({
-        url: NEXT_PUBLIC_OTEL_EXPORTER_OTLP_TRACES_ENDPOINT || 'http://localhost:4318/v1/traces',
+        url: tracesEndpoint,
       }),
       {
         scheduledDelayMillis: 500,
