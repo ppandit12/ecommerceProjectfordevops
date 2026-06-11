@@ -5,10 +5,10 @@
 
 terraform {
   backend "s3" {
-    bucket         = "YOUR_AWS_S3_BUCKET_NAME"       # Replace with your S3 Bucket Name
+    bucket         = "ppandit12-devops-state"       # Replace with your S3 Bucket Name
     key            = "eks/terraform.tfstate"         # Location of state file inside the bucket
     region         = "us-east-1"                     # Region where the S3 bucket is located
-    dynamodb_table = "YOUR_AWS_DYNAMODB_TABLE_NAME"  # Replace with your DynamoDB Table Name for state locking
+    dynamodb_table = "ppandit12-devops-lock"  # Replace with your DynamoDB Table Name for state locking
     encrypt        = true                            # Encrypt the state file at rest
   }
 }
